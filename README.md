@@ -1,9 +1,12 @@
 ![image](./imgs/hand.gif)
-# <img src="./imgs/icon.jpg" width="48">DeepMosaics
-You can use it to automatically remove the mosaics in images and videos, or add mosaics to them.<br>
-This porject based on "semantic segmentation" and "Image-to-Image Translation".<br>
+# <img src="./imgs/icon.jpg" width="48">Colab-DeepMosaics
 
-* [中文版README](./README_CN.md)<br>
+## Usage: Simply download `Colab-DeepMosaics.ipynb` and open it inside your Google Drive or click [here](https://colab.research.google.com/github/styler00dollar/Colab-DeepMosaics/blob/master/Colab-DeepMosaics.ipynb) and copy the file with "File > Save a copy to Drive..." into your Google Drive.
+
+# Info about Colab
+- If you can't open `Colab-DeepMosaics.ipynb` inside your Google Drive, try this [colab link](https://colab.research.google.com/github/styler00dollar/Colab-DeepMosaics/blob/master/Colab-DeepMosaics.ipynb) and save it to your Google Drive. The "open in Colab"-button can be missing in Google Drive, if that person never used Colab.
+- Google Colab does assign a random GPU. It depends on luck.
+- The Google Colab VM does have a maximum session length of 12 hours. Additionally there is a 30 minute timeout if you leave colab. The VM will be deleted after these timeouts.
 
 ### More example
 
@@ -27,38 +30,6 @@ origin | to Van Gogh | to winter
 
 An interesting example:[Ricardo Milos to cat](https://www.bilibili.com/video/BV1Q7411W7n6)
 
-## Run DeepMosaics
-You can either run DeepMosaics via pre-built binary package or from source.<br>
-
-### Pre-built binary package
-For windows, we bulid a GUI version for easy test.<br>
-Download this version and pre-trained model via [[Google Drive]](https://drive.google.com/open?id=1LTERcN33McoiztYEwBxMuRjjgxh4DEPs)  [[百度云,提取码1x0a]](https://pan.baidu.com/s/10rN3U3zd5TmfGpO_PEShqQ) <br>
-
-* [[How to use]](./docs/exe_help.md)<br>
-
-![image](./imgs/GUI.png)<br>
-Attentions:<br>
-
-  - Require Windows_x86_64, Windows10 is better.<br>
-  - Different pre-trained models are suitable for different effects.[[Introduction to pre-trained models]](./docs/pre-trained_models_introduction.md)<br>
-  - Run time depends on computer performance(The current version does not support gpu, if you need to use gpu please run source).<br>
-  - If output video cannot be played, you can try with [potplayer](https://daumpotplayer.com/download/).<br>
-  - GUI version update slower than source.<br>
-
-### Run from source
-#### Prerequisites
-  - Linux, Mac OS, Windows
-  - Python 3.6+
-  - [ffmpeg 3.4.6](http://ffmpeg.org/)
-  - [Pytorch 1.0+](https://pytorch.org/)
-  - CPU or NVIDIA GPU + CUDA CuDNN<br>
-#### Dependencies
-This code depends on opencv-python, torchvision available via pip install.
-#### Clone this repo
-```bash
-git clone https://github.com/HypoX64/DeepMosaics
-cd DeepMosaics
-```
 #### Get pre-trained models
 You can download pre_trained models and put them into './pretrained_models'.<br>
 [[Google Drive]](https://drive.google.com/open?id=1LTERcN33McoiztYEwBxMuRjjgxh4DEPs)  [[百度云,提取码1x0a]](https://pan.baidu.com/s/10rN3U3zd5TmfGpO_PEShqQ)<br>
@@ -76,9 +47,6 @@ python3 deepmosaic.py --media_path ./result/ruoruo_add.jpg --model_path ./pretra
 #### More parameters
 If you want to test other image or video, please refer to this file.<br>
 [[options_introduction.md]](./docs/options_introduction.md) <br>
-
-## Training with your own dataset
-If you want to train with your own dataset, please refer to [training_with_your_own_dataset.md](./docs/training_with_your_own_dataset.md)
 
 ## Acknowledgments
 This code borrows heavily from [[pytorch-CycleGAN-and-pix2pix]](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) [[Pytorch-UNet]](https://github.com/milesial/Pytorch-UNet) [[pix2pixHD]](https://github.com/NVIDIA/pix2pixHD) [[BiSeNet]](https://github.com/ooooverflow/BiSeNet).
