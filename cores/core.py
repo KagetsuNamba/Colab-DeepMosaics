@@ -52,8 +52,7 @@ def addmosaic_video(opt,netS):
         if impro.mask_area(mask)>100:    
             img = mosaic.addmosaic(img, mask, opt)
         cv2.imwrite(os.path.join('./tmp/addmosaic_image',imagepaths[i]),img)
-        print('\r','Add Mosaic:'+str(i+1)+'/'+str(len(imagepaths)),util.get_bar(100*i/len(imagepaths),num=35),end='')
-    print()
+        print('\r','Add Mosaic:'+str(i+1)+'/'+str(len(imagepaths)))
     ffmpeg.image2video( fps,
                         './tmp/addmosaic_image/output_%05d.'+opt.tempimage_type,
                         './tmp/voice_tmp.mp3',
@@ -78,8 +77,7 @@ def styletransfer_video(opt,netG):
         img = impro.imread(os.path.join('./tmp/video2image',imagepath))
         img = runmodel.run_styletransfer(opt, netG, img)
         cv2.imwrite(os.path.join('./tmp/style_transfer',imagepath),img)
-        print('\r','Transfer:'+str(i)+'/'+str(len(imagepaths)),util.get_bar(100*i/len(imagepaths),num=35),end='')
-    print()
+        print('\r','Transfer:'+str(i)+'/'+str(len(imagepaths)))
     suffix = os.path.basename(opt.model_path).replace('.pth','').replace('style_','')
     ffmpeg.image2video( fps,
                 './tmp/style_transfer/output_%05d.'+opt.tempimage_type,
@@ -98,7 +96,7 @@ def get_mosaic_positions(opt,netM,imagepaths,savemask=True):
         if savemask:
             cv2.imwrite(os.path.join('./tmp/mosaic_mask',imagepath), mask)
         positions.append([x,y,size])
-        print('\r','Find mosaic location:'+str(i)+'/'+str(len(imagepaths)),util.get_bar(100*i/len(imagepaths),num=35),end='')
+        print('\r','Find mosaic location:'+str(i)+'/'+str(len(imagepaths)))
     print('\nOptimize mosaic locations...')
     positions =np.array(positions)
     for i in range(3):positions[:,i] = filt.medfilt(positions[:,i],opt.medfilt_num)
@@ -141,8 +139,7 @@ def cleanmosaic_video_byframe(opt,netG,netM):
         mask = cv2.imread(os.path.join('./tmp/mosaic_mask',imagepath),0)
         img_result = impro.replace_mosaic(img_origin,img_fake,mask,x,y,size,opt.no_feather)
         cv2.imwrite(os.path.join('./tmp/replace_mosaic',imagepath),img_result)
-        print('\r','Clean Mosaic:'+str(i+1)+'/'+str(len(imagepaths)),util.get_bar(100*i/len(imagepaths),num=35),end='')
-    print()
+        print('\r','Clean Mosaic:'+str(i+1)+'/'+str(len(imagepaths)))
     ffmpeg.image2video( fps,
                 './tmp/replace_mosaic/output_%05d.'+opt.tempimage_type,
                 './tmp/voice_tmp.mp3',
@@ -187,8 +184,7 @@ def cleanmosaic_video_fusion(opt,netG,netM):
             img_fake = data.tensor2im(unmosaic_pred,rgb2bgr = False ,is0_1 = False)
             img_result = impro.replace_mosaic(img_origin,img_fake,mask,x,y,size,opt.no_feather)
             cv2.imwrite(os.path.join('./tmp/replace_mosaic',imagepath),img_result)
-        print('\r','Clean Mosaic:'+str(i+1)+'/'+str(len(imagepaths)),util.get_bar(100*i/len(imagepaths),num=35),end='')
-    print()
+        print('\r','Clean Mosaic:'+str(i+1)+'/'+str(len(imagepaths)))
     ffmpeg.image2video( fps,
                 './tmp/replace_mosaic/output_%05d.'+opt.tempimage_type,
                 './tmp/voice_tmp.mp3',
