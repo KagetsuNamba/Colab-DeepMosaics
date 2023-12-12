@@ -5,6 +5,7 @@ import cv2
 from models import runmodel,loadmodel
 from util import mosaic,util,ffmpeg,filt,data
 from util import image_processing as impro
+import subprocess
 
 '''
 ---------------------Video Init---------------------
@@ -154,12 +155,12 @@ def cleanmosaic_video_fusion(opt,netG,netM):
         INPUT_SIZE = 128
     fps,imagepaths,height,width = video_init(opt,path)
     positions = get_mosaic_positions(opt,netM,imagepaths,savemask=True)
-    
+
     # clean mosaic
     img_pool = np.zeros((height,width,3*N), dtype='uint8')
     for i,imagepath in enumerate(imagepaths,0):
         x,y,size = positions[i][0],positions[i][1],positions[i][2]
-        
+
         # image read stream
         mask = cv2.imread(os.path.join('./tmp/mosaic_mask',imagepath),0)
         if i==0 :
@@ -169,11 +170,10 @@ def cleanmosaic_video_fusion(opt,netG,netM):
             img_pool[:,:,0:(N-1)*3] = img_pool[:,:,3:N*3]
             img_pool[:,:,(N-1)*3:] = impro.imread(os.path.join('./tmp/video2image',imagepaths[np.clip(i+12,0,len(imagepaths)-1)]))
         img_origin = img_pool[:,:,int((N-1)/2)*3:(int((N-1)/2)+1)*3]
-        
+
         if size==0: # can not find mosaic,
             cv2.imwrite(os.path.join('./tmp/replace_mosaic',imagepath),img_origin)
         else:
-
             mosaic_input = np.zeros((INPUT_SIZE,INPUT_SIZE,3*N+1), dtype='uint8')
             mosaic_input[:,:,0:N*3] = impro.resize(img_pool[y-size:y+size,x-size:x+size,:], INPUT_SIZE)
             mask_input = impro.resize(mask,np.min(img_origin.shape[:2]))[y-size:y+size,x-size:x+size]
@@ -182,10 +182,23 @@ def cleanmosaic_video_fusion(opt,netG,netM):
             mosaic_input = data.im2tensor(mosaic_input,bgr2rgb=False,use_gpu=opt.use_gpu,use_transform = False,is0_1 = False)
             unmosaic_pred = netG(mosaic_input)
             img_fake = data.tensor2im(unmosaic_pred,rgb2bgr = False ,is0_1 = False)
+
+            # use TecoGAN
+            cv2.imwrite(os.path.join('/content/nnabla-examples/video-superresolution/tecogan/frames/input_video/',imagepath.replace('.jpg', '.png')),img_fake, [int(cv2.IMWRITE_PNG_COMPRESSION ), 1])
+            os.chdir('/content/nnabla-examples/video-superresolution/tecogan')
+            subprocess.run(['python', '/content/nnabla-examples/video-superresolution/tecogan/generate.py', '--model', '/content/nnabla-examples/video-superresolution/tecogan/tecogan_model.h5', '--input-dir-lr', '/content/nnabla-examples/video-superresolution/tecogan/frames/input_video/', '--output-dir', '/content/nnabla-examples/video-superresolution/tecogan/results/user'])
+            os.chdir('/content/Colab-DeepMosaics')
+            #img_png = cv2.imread('/content/nnabla-examples/video-superresolution/tecogan/results/user/output_' + imagepath.replace('.jpg', '.png'))
+            #cv2.imwrite('./tmp/fake.jpg',img_png, [cv2.IMWRITE_JPEG_QUALITY, 95])
+            #img_fake = cv2.imread('./tmp/fake.jpg')
+            img_fake = cv2.imread('/content/nnabla-examples/video-superresolution/tecogan/results/user/output_' + imagepath.replace('.jpg', '.png'))
+            os.remove(os.path.join('/content/nnabla-examples/video-superresolution/tecogan/frames/input_video/',imagepath.replace('.jpg', '.png')))
+            os.remove('/content/nnabla-examples/video-superresolution/tecogan/results/user/output_' + imagepath.replace('.jpg', '.png'))
+
             img_result = impro.replace_mosaic(img_origin,img_fake,mask,x,y,size,opt.no_feather)
             cv2.imwrite(os.path.join('./tmp/replace_mosaic',imagepath),img_result)
         print('\r','Clean Mosaic:'+str(i+1)+'/'+str(len(imagepaths)))
     ffmpeg.image2video( fps,
                 './tmp/replace_mosaic/output_%05d.'+opt.tempimage_type,
                 './tmp/voice_tmp.mp3',
-                 os.path.join(opt.result_dir,os.path.splitext(os.path.basename(path))[0]+'_clean.mp4'))        
+                 os.path.join(opt.result_dir,os.path.splitext(os.path.basename(path))[0]+'_clean.mp4'))
